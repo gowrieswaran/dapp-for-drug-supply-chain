@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drug Supply Chain</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="icon" type="image/png" href="./images/icon.png" />
+  </head>
+
+  <body>
+    <div class="container">
+      <h1 style="text-align: center;">Drug Supply Chain</h1>
+      <hr />
+      <p style="text-align: center;">
+        Verify Medicine using the Ethereum blockchain.
+      </p>
+    </div>
+
+    <div id="ftc-order">
+      <h2>Product Overview</h2>
+      <div class="form-group">
+        SKU
+        <br />
+        <input
+          class="input-field"
+          type="number"
+          id="sku"
+          name="sku"
+          value="1"
+        /><br />
+        NDC
+        <br />
+        <input
+          type="string"
+          id="ndc"
+          name="ndc"
+          value="NDC 0608-0910-16"
+        /><br />
+        Current Owner ID
+        <br />
+        <input
+          type="text"
+          id="ownerID"
+          name="ownerID"
+          value="0x963865f57804b38459dd4b2da2f760211a200438"
+          size="50"
+        /><br />
+
+        <div class="button-div">
+          <button class="btn-fetchOne" id="button" type="button" data-id="7">
+            Fetch Data 1
+          </button>
+          <button class="btn-fetchTwo" id="button" type="button" data-id="8">
+            Fetch Data 2
+          </button>
+        </div>
+      </div>
+
+      <div class="form-break"></div>
+      <h2>Product Specifications</h2>
+      <div class="form-group">
+        Manufacturer ID
+        <br />
+        <input
+          type="text"
+          id="manufacturerID"
+          name="manufacturerID"
+          value="0x99c289eb2aacec289631a5ddf62cf27a63d4494f"
+          size="50"
+        /><br />
+        Product ID
+        <br />
+        <input
+          type="text"
+          id="productID"
+          name="productID"
+          value="0910-16-b6e4a58d"
+        /><br />
+        Product Description
+        <br />
+        <input
+          type="text"
+          id="productDescription"
+          name="productDescription"
+          value="Atorvastatin Calcium"
+        /><br />
+        Product Form Name
+        <br />
+        <input
+          type="text"
+          id="productFormName"
+          name="productFormName"
+          value="Tablet"
+        /><br />
+        Product Labeler Name
+        <br />
+        <input
+          type="text"
+          id="productLabelerName"
+          name="productLabelerName"
+          value="Dr.Reddys"
+        /><br />
+        <br />
+        <button class="btn-manufacture" id="button" type="button" data-id="1">
+          Manufacture Drug
+        </button>
+        <button class="btn-dispatch" id="button" type="button" data-id="2">
+          Dispatch To Distributor
+        </button>
+      </div>
+      <div class="form-break"></div>
+      <h2>Product Details</h2>
+      <div class="form-group">
+        Product Description
+        <br />
+        <input
+          type="text"
+          id="productDescription"
+          name="productDescription"
+          value="Atorvastatin Calcium"
+        /><br />
+
+        Distributor ID
+        <br />
+        <input
+          type="text"
+          id="distributorID"
+          name="distributorID"
+          value="0xf1b1bcd24dad92303dd9fe78be639f7bcf9c238d"
+          size="50"
+        />
+        <br />
+        Pharmacist ID
+        <br />
+        <input
+          type="text"
+          id="pharmacistID"
+          name="pharmacistID"
+          value="0x0fb2bfefd526966c87efa19f6693d50971763fc2"
+          size="50"
+        /><br />
+        <br />
+        <button class="btn-dreceive" id="button" type="button" data-id="3">
+          Distributor Receive
+        </button>
+        <button class="btn-ddispatch" id="button" type="button" data-id="4">
+          Distributor Dispatch
+        </button>
+        <button class="btn-preceive" id="button" type="button" data-id="5">
+          Pharmacist Receive
+        </button>
+        <button class="btn-dispense" id="button" type="button" data-id="6">
+          Pharmacist Dispense
+        </button>
+      </div>
+      <div class="form-break"></div>
+      <hr />
+    </div>
+
+    <h2>Transaction History<span id="ftc-history"></span></h2>
+    <div>
+      <ul id="ftc-events">
+        <!-- Events will appear here from app.js -->
+      </ul>
+      <br />
+      <hr />
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- <script src="js/web3.min.js"></script> -->
+    <script src="js/truffle-contract.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
