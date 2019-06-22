@@ -46,16 +46,24 @@ Please make sure you've already installed ganache-cli, Truffle and enabled MetaM
 
 `truffle compile`
 
+![compile success](https://github.com/gowrieswaran/dapp-for-drug-supply-chain/blob/master/images/truffle-compile.PNG)
+
 This will create the smart contract artifacts in folder build\contracts.
 
 5.Migrate smart contracts to the locally running blockchain, ganache-cli:
 
 `truffle migrate`
 
+![migrate](https://github.com/gowrieswaran/dapp-for-drug-supply-chain/blob/master/images/truffle-migrate.PNG)
+
 6.Test smart contracts:
 
 `truffle test`
 
+![tests](https://github.com/gowrieswaran/dapp-for-drug-supply-chain/blob/master/images/truffle-tests.PNG)
+
 7.In a separate terminal window, launch the DApp:
 
 `npm run dev`
+
+![DAPP](https://github.com/gowrieswaran/dapp-for-drug-supply-chain/blob/master/images/screen-supplychain.png)
