@@ -27,13 +27,13 @@ contract PharmacistRole {
   // Define a modifier that checks to see if msg.sender has the appropriate Role
 
   modifier onlyPharmacist() {
-    require(isPharmacist(msg.sender),'Msg.sender must be Pharmacist');
+    require(isPharmacist(msg.sender),'Msg.sender is not a Pharmacist');
     _;
   }
 
   // Define a function 'isPharmacist' to check this Role
   function isPharmacist(address account) public view returns (bool) {
-    pharmacists.has(account);
+    return pharmacists.has(account);
   }
 
   // Define a function 'addPharmacist' that adds this Role

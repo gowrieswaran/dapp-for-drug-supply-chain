@@ -111,7 +111,7 @@ struct Item {
   // In the constructor set 'owner' to the address that instantiated the contract
   // and set 'sku' to 1
   constructor() public payable {
-     
+  sku = 1;
   }
 
   // Define a function 'kill' if required
@@ -135,7 +135,7 @@ string memory _productFormName, string memory _productLabelerName) public onlyMa
   //items[_ndc].productPrice = _productPrice;
   items[_ndc].ndc = _ndc;
   items[_ndc].sku = sku;
-  items[_ndc].ownerID = msg.sender;
+  items[_ndc].ownerID = _manufacturerID;
   items[_ndc].itemState = State.Manufactured;
   sku = sku + 1;
   emit Manufactured(_ndc);
@@ -217,7 +217,7 @@ function fetchItemBufferTwo(string _ndc) public view returns
 (
 uint    itemSKU,
 string    itemNDC,
-State    itemState,
+uint    itemState,
 address distributorID,
 address pharmacistID
 )
@@ -225,7 +225,7 @@ address pharmacistID
   // Assign values to the 9 parameters
   itemSKU = items[_ndc].sku;
 itemNDC = items[_ndc].ndc;
-itemState = items[_ndc].itemState;
+itemState = uint(items[_ndc].itemState);
 distributorID = items[_ndc].distributorID;
 pharmacistID = items[_ndc].pharmacistID;
 return

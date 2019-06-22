@@ -1,6 +1,6 @@
 // This script is designed to test the solidity smart contract - SuppyChain.sol -- and the various functions within
 // Declare a variable and assign the compiled smart contract artifact
-//const truffleAssert = require("truffle-assertions");
+const truffleAssert = require("truffle-assertions");
 var SupplyChain = artifacts.require("SupplyChain");
 
 contract("SupplyChain", function(accounts) {
@@ -19,42 +19,61 @@ contract("SupplyChain", function(accounts) {
   const pharmacistID = accounts[3];
   const emptyAddress = "0x00000000000000000000000000000000000000";
 
-  ///Available Accounts
-  ///==================
-  ///(0) 0x27d8d15cbc94527cadf5ec14b69519ae23288b95
-  ///(1) 0x018c2dabef4904ecbd7118350a0c54dbeae3549a
-  ///(2) 0xce5144391b4ab80668965f2cc4f2cc102380ef0a
-  ///(3) 0x460c31107dd048e34971e57da2f99f659add4f02
-  ///(4) 0xd37b7b8c62be2fdde8daa9816483aebdbd356088
-  ///(5) 0x27f184bdc0e7a931b507ddd689d76dba10514bcb
-  ///(6) 0xfe0df793060c49edca5ac9c104dd8e3375349978
-  ///(7) 0xbd58a85c96cc6727859d853086fe8560bc137632
-  ///(8) 0xe07b5ee5f738b2f87f88b99aac9c64ff1e0c7917
-  ///(9) 0xbd3ff2e3aded055244d66544c9c059fa0851da44
-
   console.log("ganache-cli accounts used here...");
   console.log("Contract Owner: accounts[0] ", accounts[0]);
   console.log("Manufacturer: accounts[1] ", accounts[1]);
   console.log("Distributor: accounts[2] ", accounts[2]);
   console.log("Pharmacist: accounts[3] ", accounts[3]);
 
+  //Test - Default
+
+  it("Test for adding the different roles - Role 1 - Manufacturer", async () => {
+    const supplyChain = await SupplyChain.deployed();
+    let addMfr = await supplyChain.addManufacturer(manufacturerID, {
+      from: ownerID
+    });
+
+    const isMfrAdded = await supplyChain.isManufacturer(manufacturerID);
+
+    truffleAssert.eventEmitted(addMfr, "ManufacturerAdded");
+    assert.equal(isMfrAdded, true);
+  });
+
+  it("Test for adding the different roles - Role 2 - Distributor", async () => {
+    const supplyChain = await SupplyChain.deployed();
+    let addDistr = await supplyChain.addDistributor(distributorID, {
+      from: ownerID
+    });
+
+    const isDistrAdded = await supplyChain.isDistributor(distributorID);
+
+    truffleAssert.eventEmitted(addDistr, "DistributorAdded");
+    assert.equal(isDistrAdded, true);
+  });
+
+  it("Test for adding the different roles - Role 3 - Pharmacist", async () => {
+    const supplyChain = await SupplyChain.deployed();
+    let addPhar = await supplyChain.addPharmacist(pharmacistID, {
+      from: ownerID
+    });
+
+    const isPharAdded = await supplyChain.isPharmacist(pharmacistID);
+
+    truffleAssert.eventEmitted(addPhar, "PharmacistAdded");
+    assert.equal(isPharAdded, true);
+  });
+
   // 1st Test
   it("Testing smart contract function manufactureItem() that allows a manufacturer to manuacture the drug", async () => {
     const supplyChain = await SupplyChain.deployed();
-    const manufacturerID = accounts[1];
+    const manufacturerID = accounts[0];
     const ndc = "NDC 0608-0910-16";
     const productID = "0608-09-b6e4a58d";
-    const productDescription = "Ciplar";
+    const productDescription = "Atorvastatin Calcium";
     const productFormName = "Tablet";
-    const productLabelerName = "Sun Pharma";
-
+    const productLabelerName = "Dr.Reddys";
+    const sku = 1;
     var eventEmitted = false;
-
-    // Mark an item as Manufactured by calling function manufactureItem()
-    // var event = supplyChain.Manufactured();
-    // await event.watch((err, res) => {
-    //   eventEmitted = true;
-    // });
 
     let tx = await supplyChain.manufactureItem(
       ndc,
@@ -74,7 +93,7 @@ contract("SupplyChain", function(accounts) {
     const resultBufferTwo = await supplyChain.fetchItemBufferTwo.call(ndc);
 
     // Verify the result set
-    assert.equal(resultBufferOne[0], 0, "Error: Invalid item SKU");
+    assert.equal(resultBufferOne[0], 1, "Error: Invalid item SKU");
     assert.equal(resultBufferOne[1], ndc, "Error: Invalid item NDC");
     assert.equal(
       resultBufferOne[2],
@@ -106,31 +125,24 @@ contract("SupplyChain", function(accounts) {
       productLabelerName,
       "Error: Missing or Invalid productLabelerName"
     );
-    assert.equal(
-      resultBufferTwo[4],
-      productPrice,
-      "Error: Missing or Invalid productPrice"
-    );
 
-    assert.equal(resultBufferTwo[3], 1, "Error: Invalid item State");
-    assert.equal(eventEmitted, true, "Invalid event emitted");
+    assert.equal(resultBufferTwo[2], 1, "Error: Invalid item State");
   });
 
   // 2nd Test
   it("Testing smart contract function dispatchItemToDistr() that allows a manufacturer to dispatch item", async () => {
     const supplyChain = await SupplyChain.deployed();
-
+    const manufacturerID = accounts[0];
     // Declare and Initialize a variable for event
     var mfrDispatchEvent = false;
 
-    // Watch the emitted event MfrDispatched()
-    var event = supplyChain.MfrDispatched();
-    await event.watch((err, res) => {
-      mfrDispatchEvent = true;
+    // Mark an item as MfrDispatched by calling function dispatchItemToDistr()
+    let tx = await supplyChain.dispatchItemToDistr(ndc, {
+      from: manufacturerID
     });
 
-    // Mark an item as MfrDispatched by calling function dispatchItemToDistr()
-    await supplyChain.dispatchItemToDistr(ndc, { from: manufacturerID });
+    let event = tx.logs[0].event;
+    assert.equal(event, "MfrDispatched", "Not Dispatched from Manifacturer!!!");
 
     // Retrieve the just now saved item from blockchain by calling function fetchItem()
     const resultBufferOne = await supplyChain.fetchItemBufferOne.call(ndc);
@@ -138,25 +150,21 @@ contract("SupplyChain", function(accounts) {
 
     // Verify the result set
 
-    assert.equal(resultBufferTwo[3], 2, "Error: Invalid item State");
-    assert.equal(eventEmitted, true, "Invalid event emitted");
+    assert.equal(resultBufferTwo[2], 2, "Error: Invalid item State");
   });
 
   // 3rd Test
   it("Testing smart contract function distReceiveItem() that allows a distributor to mark an item as received", async () => {
     const supplyChain = await SupplyChain.deployed();
-
+    const distributorID = accounts[0];
     // Declare and Initialize a variable for event
     var distrReceiveEvent = false;
 
-    // Watch the emitted event DistrReceived()
-    var event = supplyChain.DistrReceived();
-    await event.watch((err, res) => {
-      distrReceiveEvent = true;
-    });
-
     // Mark an item as DistrReceived by calling function distrReceiveItem()
-    await supplyChain.distrReceiveItem(ndc, { from: distributorID });
+    let tx = await supplyChain.distrReceiveItem(ndc, { from: distributorID });
+
+    let event = tx.logs[0].event;
+    assert.equal(event, "DistrReceived", "Not Received by Distributor!!!");
 
     // Retrieve the just now saved item from blockchain by calling function fetchItem()
     const resultBufferOne = await supplyChain.fetchItemBufferOne.call(ndc);
@@ -164,53 +172,46 @@ contract("SupplyChain", function(accounts) {
 
     // Verify the result set
 
-    assert.equal(resultBufferTwo[3], 3, "Error: Invalid item State");
-    assert.equal(eventEmitted, true, "Invalid event emitted");
+    assert.equal(resultBufferTwo[2], 3, "Error: Invalid item State");
   });
 
   // 4th Test
   it("Testing smart contract function dispatchItemToPharmacist() that allows a distributor to dispatch item to pharmacist", async () => {
     const supplyChain = await SupplyChain.deployed();
+    const distributorID = accounts[0];
 
     // Declare and Initialize a variable for event
     var distrDispatchEvent = false;
-
-    // Watch the emitted event DistrDispatched()
-    var event = supplyChain.DistrDispatched();
-    await event.watch((err, res) => {
-      distrDispatchEvent = true;
-    });
 
     // Mark an item as DistrDispatched by calling function dispatchItemToPharmacist()
     let tx = await supplyChain.dispatchItemToPharmacist(ndc, {
       from: distributorID
     });
 
+    let event = tx.logs[0].event;
+    assert.equal(event, "DistrDispatched", "Not Dispatched by Distributor!!!");
+
     // Retrieve the just now saved item from blockchain by calling function fetchItem()
     const resultBufferOne = await supplyChain.fetchItemBufferOne.call(ndc);
     const resultBufferTwo = await supplyChain.fetchItemBufferTwo.call(ndc);
 
     // Verify the result set
 
-    assert.equal(resultBufferTwo[3], 4, "Error: Invalid item State");
-    truffleAssert.eventEmitted(tx, "Distr Dispatched!!!");
+    assert.equal(resultBufferTwo[2], 4, "Error: Invalid item State");
   });
 
   // 5th Test
   it("Testing smart contract function pharReceiveItem() that allows a pharmacist to mark an item as received", async () => {
     const supplyChain = await SupplyChain.deployed();
-
+    const pharmacistID = accounts[0];
     // Declare and Initialize a variable for event
     var pharReceiveEvent = false;
 
-    // Watch the emitted event PharReceived()
-    var event = supplyChain.PharReceived();
-    await event.watch((err, res) => {
-      pharReceiveEvent = true;
-    });
-
     // Mark an item as PharReceived by calling function pharReceiveItem()
-    await supplyChain.pharReceiveItem(ndc, { from: pharmacistID });
+    let tx = await supplyChain.pharReceiveItem(ndc, { from: pharmacistID });
+
+    let event = tx.logs[0].event;
+    assert.equal(event, "PharReceived", "Not received by Pharmacist!!!");
 
     // Retrieve the just now saved item from blockchain by calling function fetchItem()
     const resultBufferOne = await supplyChain.fetchItemBufferOne.call(ndc);
@@ -218,25 +219,21 @@ contract("SupplyChain", function(accounts) {
 
     // Verify the result set
 
-    assert.equal(resultBufferTwo[3], 5, "Error: Invalid item State");
-    assert.equal(eventEmitted, true, "Invalid event emitted");
+    assert.equal(resultBufferTwo[2], 5, "Error: Invalid item State");
   });
 
   // 6th Test
   it("Testing smart contract function dispenseToConsumer() that allows a pharmacist to dispense item", async () => {
     const supplyChain = await SupplyChain.deployed();
-
+    const pharmacistID = accounts[0];
     // Declare and Initialize a variable for event
     var pharDispenseEvent = false;
 
-    // Watch the emitted event Dispensed()
-    var event = supplyChain.Dispensed();
-    await event.watch((err, res) => {
-      pharDispenseEvent = true;
-    });
-
     // Mark an item as Sold by calling function buyItem()
-    await supplyChain.dispenseToConsumer(ndc, { from: pharmacistID });
+    let tx = await supplyChain.dispenseToConsumer(ndc, { from: pharmacistID });
+
+    let event = tx.logs[0].event;
+    assert.equal(event, "Dispensed", "Not Dispensed to consumers!!!");
 
     // Retrieve the just now saved item from blockchain by calling function fetchItem()
     const resultBufferOne = await supplyChain.fetchItemBufferOne.call(ndc);
@@ -244,8 +241,7 @@ contract("SupplyChain", function(accounts) {
 
     // Verify the result set
 
-    assert.equal(resultBufferTwo[3], 6, "Error: Invalid item State");
-    assert.equal(eventEmitted, true, "Invalid event emitted");
+    assert.equal(resultBufferTwo[2], 6, "Error: Invalid item State");
   });
 
   // 7th Test
@@ -256,16 +252,18 @@ contract("SupplyChain", function(accounts) {
     const resultBufferOne = await supplyChain.fetchItemBufferOne.call(ndc);
 
     // Verify the result set:
-    assert.equal(resultBufferOne[0], sku, "Error: Invalid item SKU");
+
+    assert.equal(resultBufferOne[0].toNumber(), sku, "Error: Invalid item SKU");
+
     assert.equal(resultBufferOne[1], ndc, "Error: Invalid item NDC");
     assert.equal(
       resultBufferOne[2],
-      pharmacistID,
+      accounts[0],
       "Error: Missing or Invalid ownerID"
     );
     assert.equal(
       resultBufferOne[3],
-      manufacturerID,
+      accounts[0],
       "Error: Missing or Invalid manufacturerID"
     );
     assert.equal(
@@ -300,20 +298,16 @@ contract("SupplyChain", function(accounts) {
     // Verify the result set:
     assert.equal(resultBufferTwo[0], sku, "Error: Invalid item SKU");
     assert.equal(resultBufferTwo[1], ndc, "Error: Invalid item NDC");
+
+    assert.equal(resultBufferTwo[2], 6, "Error: Invalid item State");
     assert.equal(
-      resultBufferTwo[2],
-      productPrice,
-      "Error: Invalid item productPrice"
-    );
-    assert.equal(resultBufferTwo[3], 6, "Error: Invalid item State");
-    assert.equal(
-      resultBufferTwo[4],
-      distributorID,
+      resultBufferTwo[3],
+      accounts[0],
       "Error: Missing or Invalid distributerID"
     );
     assert.equal(
-      resultBufferTwo[5],
-      pharmacistID,
+      resultBufferTwo[4],
+      accounts[0],
       "Error: Missing or Invalid retailerID"
     );
   });
